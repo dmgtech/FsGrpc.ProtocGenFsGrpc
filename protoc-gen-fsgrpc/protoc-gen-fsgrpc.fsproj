@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>FsharpGrpcGen</RootNamespace>
+    <PackageId>FsGrpc.ProtocGenFsGrpc</PackageId>
+    <OtherFlags>$(OtherFlags) --warnon:1182</OtherFlags>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Description>Code generation for idiomatic F# code generation from protocol buffers</Description>
+    <PackageTags>F#;protobuf;protocol buffers;grpc;</PackageTags>
+    <RepositoryUrl>https://github.com/divisionsinc/fsgrpc</RepositoryUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageVersion>$(PROTOCGENFSGRPC_VERSION)$(VersionSuffix)</PackageVersion>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Protobuf Include="protoc-proto/**/*.proto" ProtoRoot="protoc-proto"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../LICENSE" Pack="true" PackagePath="" />
+    <None Include="../README.md" Pack="true" PackagePath="" />
+    <Compile Include="Model.fs" />
+    <Compile Include="DependencySort.fs" />
+    <Compile Include="ChangeCase.fs" />
+    <Compile Include="CodeTree.fs" />
+    <Compile Include="ProtoCodeGen.fs" />
+    <Compile Include="Main.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FsGrpc.Tools" Version="0.5.0" />
+    <PackageReference Update="Fsharp.Core" Version="6.0.1"/>
+
+    <None Include="$(OutputPath)\linux-arm64\*" Pack="true" PackagePath="tools\linux_arm64" Visible="false" />
+    <None Include="$(OutputPath)\linux-x64\*" Pack="true" PackagePath="tools\linux_x64" Visible="false" />
+    <None Include="$(OutputPath)\osx-x64\*" Pack="true" PackagePath="tools\macosx_x64" Visible="false" />
+    <None Include="$(OutputPath)\win-x64\*" Pack="true" PackagePath="tools\windows_x64" Visible="false" />
+    <None Include="$(OutputPath)\win-x86\*" Pack="true" PackagePath="tools\windows_x86" Visible="false" />
+  </ItemGroup>
+
+</Project>
