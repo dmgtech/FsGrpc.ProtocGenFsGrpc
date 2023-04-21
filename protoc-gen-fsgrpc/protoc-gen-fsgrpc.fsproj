@@ -33,8 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FsGrpc.Tools" Version="0.5.0" />
-    <PackageReference Update="Fsharp.Core" Version="6.0.1"/>
+    <PackageReference Include="FsGrpc.Tools" Version="0.5.1" />
 
     <None Include="$(OutputPath)\linux-arm64\*" Pack="true" PackagePath="tools\linux_arm64" Visible="false" />
     <None Include="$(OutputPath)\linux-x64\*" Pack="true" PackagePath="tools\linux_x64" Visible="false" />
