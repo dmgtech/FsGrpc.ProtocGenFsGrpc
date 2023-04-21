@@ -15,7 +15,7 @@
     <None Include="inputs/**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="$(NugetPackageRoot)/fsgrpc.tools/1.0.0/build/native/**">
+    <None Include="$(NugetPackageRoot)/fsgrpc.tools/0.5.1/build/native/**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="reference/**">
@@ -38,7 +38,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="FSharp.Control.AsyncSeq" Version="3.2.1" />
-    <PackageReference Include="FsGrpc.Tools" Version="1.0.0" />
+    <PackageReference Include="FsGrpc.Tools" Version="0.5.1" />
   </ItemGroup>
 
   <ItemGroup>
