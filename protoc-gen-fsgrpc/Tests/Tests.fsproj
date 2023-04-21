@@ -18,6 +18,9 @@
     <None Include="$(NugetPackageRoot)/fsgrpc.tools/0.5.1/build/native/**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="$(NugetPackageRoot)/fsgrpc.tools/0.5.1/tools/**">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="reference/**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
