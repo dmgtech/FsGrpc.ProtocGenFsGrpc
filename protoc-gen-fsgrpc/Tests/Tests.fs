@@ -78,7 +78,7 @@ let contentsOfFolder folder =
         result
     contentsOfFolder folder "" |> Seq.map essentials
 
-let runProtoc = run "inputs/protoc"
+let runProtoc = run "linux_x64/protoc"
 
 [<Fact>]
 let ``Can run protoc`` () =
@@ -90,7 +90,7 @@ let ``Can run protoc`` () =
         | Ok result -> result
     Assert.Equal(0, result.ExitCode)
     // Note: other versions are probably fine, but for now we assert that it works with this version
-    Assert.Equal("libprotoc 3.19.1\n", result.Output)
+    Assert.Equal("libprotoc 3.21.6\n", result.Output)
 
 
 [<Fact>]
