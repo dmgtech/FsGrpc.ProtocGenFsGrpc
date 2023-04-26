@@ -24,12 +24,18 @@ jobs:
         run: dotnet --version
       - name: Install dependencies
         run: dotnet restore
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
-      - name: Publish
-        env:
-          PROTOCGENFSGRPC_VERSION: ${{github.ref_name}}
-        run: dotnet publish -p:PROTOCGENFSGRPC_VERSION=${PROTOCGENFSGRPC_VERSION#v} --no-restore --no-build --configuration Release
+      - name: Build linux-arm64
+        run: dotnet build -p:TargetFramework=net6.0 --no-self-contained --configuration Release --no-restore -r linux-arm64
+      - name: Build linux-x64
+        run: dotnet build -p:TargetFramework=net6.0 --no-self-contained --configuration Release --no-restore -r linux-x64
+      - name: Build osx-x64
+        run: dotnet build -p:TargetFramework=net6.0 --no-self-contained --configuration Release --no-restore -r osx-x64
+      - name: Build osx-arm64
+        run: dotnet build -p:TargetFramework=net6.0 --no-self-contained --configuration Release --no-restore -r osx-arm64
+      - name: Build win-x86
+        run: dotnet build -p:TargetFramework=net6.0 --no-self-contained --configuration Release --no-restore -r win-x86
+      - name: Build win-x64
+        run: dotnet build -p:TargetFramework=net6.0 --no-self-contained --configuration Release --no-restore -r win-x64
       - name: Package
         env:
           PROTOCGENFSGRPC_VERSION: ${{github.ref_name}}
@@ -43,6 +49,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: ./protoc-gen-fsgrpc/bin/Release/FsGrpc.ProtocGenFsGrpc.${${{github.ref_name}}#v}.nupkg
+          files: bin/Release/FsGrpc.ProtocGenFsGrpc.${PROTOCGENFSGRPC_VERSION#v}.nupkg
 
 

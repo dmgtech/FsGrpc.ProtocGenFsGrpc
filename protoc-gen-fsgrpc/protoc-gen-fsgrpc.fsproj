@@ -15,6 +15,7 @@
     <PackageVersion>$(PROTOCGENFSGRPC_VERSION)$(VersionSuffix)</PackageVersion>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <NoWarn>$(NoWarn);NU5128</NoWarn>
+    <RuntimeIdentifiers>linux-arm64;linux-x64;osx-x64;osx-arm64;win-x86;win-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <ItemGroup>
@@ -38,6 +39,7 @@
     <None Include="$(OutputPath)\linux-arm64\*" Pack="true" PackagePath="tools\linux_arm64" Visible="false" />
     <None Include="$(OutputPath)\linux-x64\*" Pack="true" PackagePath="tools\linux_x64" Visible="false" />
     <None Include="$(OutputPath)\osx-x64\*" Pack="true" PackagePath="tools\macosx_x64" Visible="false" />
+    <None Include="$(OutputPath)\osx-arm64\*" Pack="true" PackagePath="tools\macosx_arm64" Visible="false" />
     <None Include="$(OutputPath)\win-x64\*" Pack="true" PackagePath="tools\windows_x64" Visible="false" />
     <None Include="$(OutputPath)\win-x86\*" Pack="true" PackagePath="tools\windows_x86" Visible="false" />
   </ItemGroup>
