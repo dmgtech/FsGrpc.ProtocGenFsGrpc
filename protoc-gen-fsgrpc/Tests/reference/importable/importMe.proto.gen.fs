@@ -139,7 +139,7 @@ type Args = {
         with get() = Ex.Ample.Importable._Args.Proto.Value.Empty
 
 namespace Ex.Ample.Importable.Optics
-open FsGrpc.Optics
+open Focal.Core
 module Imported =
     let ``value`` : ILens'<Ex.Ample.Importable.Imported,string> =
         {
@@ -154,7 +154,7 @@ module Args =
         }
 
 namespace Ex.Ample.Importable
-open FsGrpc.Optics
+open Focal.Core
 open System.Runtime.CompilerServices
 [<Extension>]
 type OpticsExtensionMethods_importable_importMe_proto =
