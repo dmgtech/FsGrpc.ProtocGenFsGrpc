@@ -462,7 +462,7 @@ type CodeGeneratorResponse = {
         with get() = Google.Protobuf.Compiler._CodeGeneratorResponse.Proto.Value.Empty
 
 namespace Google.Protobuf.Compiler.Optics
-open FsGrpc.Optics
+open Focal.Core
 module Version =
     let _id : ILens'<Google.Protobuf.Compiler.Version,Google.Protobuf.Compiler.Version> =
         {
@@ -559,7 +559,7 @@ module CodeGeneratorResponse =
             }
 
 namespace Google.Protobuf.Compiler
-open FsGrpc.Optics
+open Focal.Core
 open System.Runtime.CompilerServices
 [<Extension>]
 type OpticsExtensionMethods_google_protobuf_compiler_plugin_proto =

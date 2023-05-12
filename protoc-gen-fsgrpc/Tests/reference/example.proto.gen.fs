@@ -993,7 +993,7 @@ type ResultEvent = {
         with get() = Ex.Ample._ResultEvent.Proto.Value.Empty
 
 namespace Ex.Ample.Optics
-open FsGrpc.Optics
+open Focal.Core
 module Inner =
     let ``intFixed`` : ILens'<Ex.Ample.Inner,int> =
         {
@@ -1289,7 +1289,7 @@ module ResultEvent =
             }
 
 namespace Ex.Ample
-open FsGrpc.Optics
+open Focal.Core
 open System.Runtime.CompilerServices
 [<Extension>]
 type OpticsExtensionMethods_example_proto =

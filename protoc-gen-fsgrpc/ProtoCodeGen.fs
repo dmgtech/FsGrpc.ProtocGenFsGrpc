@@ -1088,11 +1088,11 @@ let private toFsRecordDefs (fileName: string) (typeMap: TypeMap) (protoNs: strin
     else
         Line ""
         Line $"namespace %s{opticsNs}"
-        Line $"open FsGrpc.Optics"
+        Line $"open Focal.Core"
         Frag (opticsMessageDefs)
         Line ""
         Line $"namespace %s{toFsNamespace protoNs}"
-        Line $"open FsGrpc.Optics"
+        Line $"open Focal.Core"
         Line $"open System.Runtime.CompilerServices"
         Line "[<Extension>]"
         Line $"type OpticsExtensionMethods_%s{extensionMethodSuffix} ="
@@ -1206,7 +1206,6 @@ let private toTargetsFile (files: FileDef seq) : CodeNode =
     Line $"""</Project>"""
     ]
 
-open FsGrpc.Optics
 open Google.Protobuf
 
 let toMarshallerName (typeName: string) = $"__Marshaller_{typeName.Replace('.','_')}"

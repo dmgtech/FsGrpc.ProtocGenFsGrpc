@@ -1057,7 +1057,7 @@ type OneofWithNoParamsWrapper = {
         with get() = Test.Name.Space._OneofWithNoParamsWrapper.Proto.Value.Empty
 
 namespace Test.Name.Space.Optics
-open FsGrpc.Optics
+open Focal.Core
 module TestMessage =
     let ``testInt`` : ILens'<Test.Name.Space.TestMessage,int> =
         {
@@ -1294,7 +1294,7 @@ module OneofWithNoParamsWrapper =
         }
 
 namespace Test.Name.Space
-open FsGrpc.Optics
+open Focal.Core
 open System.Runtime.CompilerServices
 [<Extension>]
 type OpticsExtensionMethods_testproto_proto =

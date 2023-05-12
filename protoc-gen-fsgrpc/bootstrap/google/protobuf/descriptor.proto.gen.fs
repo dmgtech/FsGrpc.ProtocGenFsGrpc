@@ -3378,7 +3378,7 @@ type GeneratedCodeInfo = {
         with get() = Google.Protobuf._GeneratedCodeInfo.Proto.Value.Empty
 
 namespace Google.Protobuf.Optics
-open FsGrpc.Optics
+open Focal.Core
 module FileDescriptorSet =
     let _id : ILens'<Google.Protobuf.FileDescriptorSet,Google.Protobuf.FileDescriptorSet> =
         {
@@ -4192,7 +4192,7 @@ module GeneratedCodeInfo =
             }
 
 namespace Google.Protobuf
-open FsGrpc.Optics
+open Focal.Core
 open System.Runtime.CompilerServices
 [<Extension>]
 type OpticsExtensionMethods_google_protobuf_descriptor_proto =
