@@ -18,8 +18,8 @@ jobs:
           dotnet-version: |
             6.0.x
             8.0.x
-      - name: Display version
-        run: dotnet --version
+      - name: Display SDK versions
+        run: dotnet --list-sdks
       - name: Gather projects
         run: rm -f protoc-gen-fsgrpc-ci.sln && dotnet new sln -n protoc-gen-fsgrpc-ci && dotnet sln protoc-gen-fsgrpc-ci.sln add `find . -type f -name '*.fsproj'` --in-root
       - name: Install dependencies
