@@ -74,7 +74,7 @@ B. If you need to run the plugin offline:
     plugins:
     - plugin: fsgrpc.exe 'fsgrpc for non-windows operating systems and fsgrpc.exe for windows
         out: gen
-        path: <path to the fsgrpc repo>/fsgrpc/protoc-gen-fsgrpc/bin/Debug/net6.0/protoc-gen-fsgrpc
+        path: <path to the fsgrpc repo>/fsgrpc/protoc-gen-fsgrpc/bin/Debug/net8.0/protoc-gen-fsgrpc
         strategy: all
     ```
 
