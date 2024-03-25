@@ -15,10 +15,10 @@
     <None Include="inputs/**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="$(NugetPackageRoot)/fsgrpc.tools/0.5.1/build/native/**">
+    <None Include="$(NugetPackageRoot)/fsgrpc.tools/0.5.4/build/native/**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="$(NugetPackageRoot)/fsgrpc.tools/0.5.1/tools/**">
+    <None Include="$(NugetPackageRoot)/fsgrpc.tools/0.5.4/tools/**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="reference/**">
