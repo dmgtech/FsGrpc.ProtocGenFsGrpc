@@ -9,20 +9,34 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dotnet-version: ['6.0.x']
+        dotnet-version: ['8.0']
     steps:
       - uses: actions/checkout@v2
-      - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
+      - name: Setup .NET Core SDKs
         uses: actions/setup-dotnet@v2.0.0
         with:
-          dotnet-version: ${{ matrix.dotnet-version }}
-      - name: Display version
-        run: dotnet --version
+          dotnet-version: |
+            6.0.x
+            8.0.x
+      - name: Display SDK versions
+        run: dotnet --list-sdks
       - name: Gather projects
-        run: rm -f protoc-gen-fsgrpc-ci.sln && dotnet new sln -n protoc-gen-fsgrpc-ci && dotnet sln protoc-gen-fsgrpc-ci.sln add `find . -type f -name '*.fsproj'` --in-root
+        run: |
+          rm -f protoc-gen-fsgrpc-ci.sln && \
+            dotnet new sln -n protoc-gen-fsgrpc-ci && \
+            dotnet sln protoc-gen-fsgrpc-ci.sln add `find . -type f -name '*.fsproj'` --in-root
       - name: Install dependencies
         run: dotnet restore
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: |
+          dotnet build \
+            -p:TargetFramework=net${{ matrix.dotnet-version }} \
+            --configuration Release \
+            --no-restore
       - name: Test
-        run: dotnet test --configuration Release --no-restore --verbosity normal
+        run: |
+          dotnet test \
+            -p:TargetFramework=net${{ matrix.dotnet-version }} \
+            --configuration Release \
+            --no-restore \
+            --verbosity normal

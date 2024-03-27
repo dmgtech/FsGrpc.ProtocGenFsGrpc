@@ -9,33 +9,35 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dotnet-version: ['6.0.x']
+        dotnet-version: ['8.0']
     defaults:
       run:
         working-directory: ./protoc-gen-fsgrpc
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
+      - name: Setup .NET Core SDKs
         uses: actions/setup-dotnet@v2.0.0
         with:
-          dotnet-version: ${{ matrix.dotnet-version }}
+          dotnet-version: |
+            6.0.x
+            8.0.x
       - name: Display version
         run: dotnet --version
       - name: Install dependencies
         run: dotnet restore
       - name: Build linux-arm64
-        run: dotnet build -p:TargetFramework=net6.0 --no-self-contained --configuration Release --no-restore -r linux-arm64
+        run: dotnet build -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r linux-arm64
       - name: Build linux-x64
-        run: dotnet build -p:TargetFramework=net6.0 --no-self-contained --configuration Release --no-restore -r linux-x64
+        run: dotnet build -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r linux-x64
       - name: Build osx-x64
-        run: dotnet build -p:TargetFramework=net6.0 --no-self-contained --configuration Release --no-restore -r osx-x64
+        run: dotnet build -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r osx-x64
       - name: Build osx-arm64
-        run: dotnet build -p:TargetFramework=net6.0 --no-self-contained --configuration Release --no-restore -r osx-arm64
+        run: dotnet build -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r osx-arm64
       - name: Build win-x86
-        run: dotnet build -p:TargetFramework=net6.0 --no-self-contained --configuration Release --no-restore -r win-x86
+        run: dotnet build -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r win-x86
       - name: Build win-x64
-        run: dotnet build -p:TargetFramework=net6.0 --no-self-contained --configuration Release --no-restore -r win-x64
+        run: dotnet build -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r win-x64
       - name: Package
         env:
           PROTOCGENFSGRPC_VERSION: ${{github.ref_name}}

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>FsharpGrpcGen</RootNamespace>
     <PackageId>FsGrpc.ProtocGenFsGrpc</PackageId>
     <OtherFlags>$(OtherFlags) --warnon:1182</OtherFlags>
@@ -34,8 +34,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FsGrpc.Tools" Version="0.5.1" PrivateAssets="all" />
-    <PackageReference Include="Focal.Core" Version="0.9.2"/>
+    <PackageReference Include="FsGrpc.Tools" Version="0.5.4" PrivateAssets="all" />
+    <PackageReference Include="Focal.Core" Version="0.10.0" />
 
     <None Include="$(OutputPath)\linux-arm64\*" Pack="true" PackagePath="tools\linux_arm64" Visible="false" />
     <None Include="$(OutputPath)\linux-x64\*" Pack="true" PackagePath="tools\linux_x64" Visible="false" />
