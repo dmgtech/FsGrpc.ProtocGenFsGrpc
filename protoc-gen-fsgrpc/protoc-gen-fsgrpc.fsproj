@@ -46,5 +46,3 @@
   </ItemGroup>
 
 </Project>
-
-<!-- dotnet build -c Release && dotnet publish -p:PROTOCGENFSGRPC_VERSION=99.0.0 -c Release && dotnet pack -p:PROTOCGENFSGRPC_VERSION=99.0.0 -c Release && mv bin/Release/FsGrpc.ProtocGenFsGrpc.99.0.0.nupkg ../../pkgs/ -->
