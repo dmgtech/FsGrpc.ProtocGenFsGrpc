@@ -34,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FsGrpc.Tools" Version="0.5.4" PrivateAssets="all" />
+    <PackageReference Include="FsGrpc.Tools" Version="0.6.2" PrivateAssets="all" />
     <PackageReference Include="Focal.Core" Version="0.10.0" />
 
     <None Include="$(OutputPath)\linux-arm64\*" Pack="true" PackagePath="tools\linux_arm64" Visible="false" />
