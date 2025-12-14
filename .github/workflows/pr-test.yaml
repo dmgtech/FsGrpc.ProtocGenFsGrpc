@@ -17,6 +17,16 @@ jobs:
         with:
           dotnet-version: |
             8.0.x
+      - name: Configure private NuGet source (FsGrpc.Tools 0.8.0)
+        env:
+          NUGET_SOURCE_URL: ${{ secrets.NUGET_SOURCE_URL }}
+          NUGET_SOURCE_NAME: ${{ secrets.NUGET_SOURCE_NAME }}
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          if [ -n "$NUGET_SOURCE_URL" ] && [ -n "$NUGET_SOURCE_NAME" ] && [ -n "$NUGET_API_KEY" ]; then
+            dotnet nuget remove source "$NUGET_SOURCE_NAME" || true
+            dotnet nuget add source "$NUGET_SOURCE_URL" --name "$NUGET_SOURCE_NAME" --username "token" --password "$NUGET_API_KEY" --store-password-in-clear-text || true
+          fi
       - name: Display SDK versions
         run: dotnet --list-sdks
       - name: Gather projects
