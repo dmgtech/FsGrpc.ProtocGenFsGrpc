@@ -18,8 +18,13 @@
     <RuntimeIdentifiers>linux-arm64;linux-x64;osx-x64;osx-arm64;win-x86;win-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
+  <!-- Avoid loading Protobuf MSBuild tasks during VS design-time build -->
+  <PropertyGroup Condition="'$(BuildingInsideVisualStudio)' == 'true'">
+    <DisableProtobufDesignTimeBuild>true</DisableProtobufDesignTimeBuild>
+  </PropertyGroup>
+
   <ItemGroup>
-    <Protobuf Include="protoc-proto/**/*.proto" ProtoRoot="protoc-proto"/>
+    <Protobuf Include="protoc-proto/**/*.proto" ProtoRoot="protoc-proto" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,8 +39,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FsGrpc.Tools" Version="0.6.2" PrivateAssets="all" />
+    <PackageReference Include="FsGrpc.Tools" Version="0.8.0" PrivateAssets="all" />
     <PackageReference Include="Focal.Core" Version="0.10.0" />
+    <PackageReference Update="FSharp.Core" Version="8.0.403" />
 
     <None Include="$(OutputPath)\linux-arm64\*" Pack="true" PackagePath="tools\linux_arm64" Visible="false" />
     <None Include="$(OutputPath)\linux-x64\*" Pack="true" PackagePath="tools\linux_x64" Visible="false" />
