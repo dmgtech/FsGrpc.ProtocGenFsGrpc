@@ -15,10 +15,11 @@
     <None Include="inputs/**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="$(NugetPackageRoot)/fsgrpc.tools/0.6.2/build/native/**">
+    <!-- Align test tooling with generator dependency (FsGrpc.Tools 0.8.0) -->
+    <None Include="$(NugetPackageRoot)/fsgrpc.tools/0.8.0/build/native/**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="$(NugetPackageRoot)/fsgrpc.tools/0.6.2/tools/**">
+    <None Include="$(NugetPackageRoot)/fsgrpc.tools/0.8.0/tools/**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="reference/**">
@@ -41,7 +42,10 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="FSharp.Control.AsyncSeq" Version="3.2.1" />
-    <PackageReference Include="FsGrpc.Tools" Version="0.6.2" />
+    <!-- Use FsGrpc.Tools 0.8.0 to match generator and its Google.Protobuf dependency -->
+    <PackageReference Include="FsGrpc.Tools" Version="0.8.0" />
+    <!-- Pin Google.Protobuf to 3.33.1 to avoid assembly conflicts -->
+    <PackageReference Include="Google.Protobuf" Version="3.33.1" />
   </ItemGroup>
 
   <ItemGroup>
