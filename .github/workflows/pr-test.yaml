@@ -45,8 +45,26 @@ jobs:
           rm -f protoc-gen-fsgrpc-ci.sln && \
             dotnet new sln -n protoc-gen-fsgrpc-ci && \
             dotnet sln protoc-gen-fsgrpc-ci.sln add `find . -type f -name '*.fsproj'` --in-root
-      - name: Install dependencies
-        run: dotnet restore protoc-gen-fsgrpc-ci.sln
+      - name: Install dependencies (with diagnostics)
+        env:
+          NUGET_SOURCE_URL: ${{ secrets.NUGET_SOURCE_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "NuGet sources configured:" && dotnet nuget list source --format detailed || true
+
+          if [ -n "$NUGET_SOURCE_URL" ]; then
+            echo "Testing access to GitHub Packages feed..."
+            AUTH_B64=$(printf "%s:%s" "$GITHUB_ACTOR" "$GITHUB_TOKEN" | base64)
+            # Expect HTTP/200 from index.json when authenticated
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Basic $AUTH_B64" "$NUGET_SOURCE_URL")
+            echo "Feed URL: $NUGET_SOURCE_URL | HTTP status: $STATUS"
+
+            echo "Restoring with explicit sources (GitHub feed + nuget.org)"
+            dotnet restore protoc-gen-fsgrpc-ci.sln --source "$NUGET_SOURCE_URL" --source https://api.nuget.org/v3/index.json --verbosity minimal
+          else
+            echo "NUGET_SOURCE_URL not set. Restoring with default sources (likely nuget.org only)."
+            dotnet restore protoc-gen-fsgrpc-ci.sln --verbosity minimal
+          fi
       - name: Build
         run: |
           dotnet build protoc-gen-fsgrpc-ci.sln \
