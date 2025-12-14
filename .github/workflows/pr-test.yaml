@@ -5,12 +5,19 @@ on:
       branches:
         - main
   workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         dotnet-version: ['8.0']
+    env:
+      ORG_NUGET_FEED: https://nuget.pkg.github.com/dmgtech/index.json
     steps:
       - uses: actions/checkout@v2
       - name: Setup .NET Core SDKs
@@ -18,10 +25,8 @@ jobs:
         with:
           dotnet-version: |
             8.0.x
-          # If using GitHub Packages for FsGrpc.Tools, set source-url to your org feed
-          source-url: ${{ secrets.NUGET_SOURCE_URL }}
+          source-url: ${{ secrets.NUGET_SOURCE_URL || env.ORG_NUGET_FEED }}
         env:
-          # setup-dotnet will configure auth for source-url using this token
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Configure private NuGet source (FsGrpc.Tools 0.8.0)
         env:
@@ -29,7 +34,9 @@ jobs:
           NUGET_SOURCE_NAME: ${{ secrets.NUGET_SOURCE_NAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ -n "$NUGET_SOURCE_URL" ] && [ -n "$NUGET_SOURCE_NAME" ]; then
+          # Fallback to org feed if secret not set (e.g., PRs from forks)
+          NUGET_SOURCE_URL=${NUGET_SOURCE_URL:-$ORG_NUGET_FEED}
+          if [ -n "$NUGET_SOURCE_NAME" ]; then
             dotnet nuget remove source "$NUGET_SOURCE_NAME" || true
             dotnet nuget add source "$NUGET_SOURCE_URL" \
               --name "$NUGET_SOURCE_NAME" \
@@ -37,6 +44,12 @@ jobs:
               --password "$GITHUB_TOKEN" \
               --store-password-in-clear-text \
               --valid-authentication-types basic || true
+          else
+            # Use default name when not provided
+            dotnet nuget remove source dmgtech || true
+            dotnet nuget add source "$NUGET_SOURCE_URL" --name dmgtech \
+              --username "$GITHUB_ACTOR" --password "$GITHUB_TOKEN" \
+              --store-password-in-clear-text --valid-authentication-types basic || true
           fi
       - name: Display SDK versions
         run: dotnet --list-sdks
@@ -52,19 +65,16 @@ jobs:
         run: |
           echo "NuGet sources configured:" && dotnet nuget list source --format detailed || true
 
-          if [ -n "$NUGET_SOURCE_URL" ]; then
-            echo "Testing access to GitHub Packages feed..."
-            AUTH_B64=$(printf "%s:%s" "$GITHUB_ACTOR" "$GITHUB_TOKEN" | base64)
-            # Expect HTTP/200 from index.json when authenticated
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Basic $AUTH_B64" "$NUGET_SOURCE_URL")
-            echo "Feed URL: $NUGET_SOURCE_URL | HTTP status: $STATUS"
+          # Determine feed URL
+          FEED_URL=${NUGET_SOURCE_URL:-$ORG_NUGET_FEED}
 
-            echo "Restoring with explicit sources (GitHub feed + nuget.org)"
-            dotnet restore protoc-gen-fsgrpc-ci.sln --source "$NUGET_SOURCE_URL" --source https://api.nuget.org/v3/index.json --verbosity minimal
-          else
-            echo "NUGET_SOURCE_URL not set. Restoring with default sources (likely nuget.org only)."
-            dotnet restore protoc-gen-fsgrpc-ci.sln --verbosity minimal
-          fi
+          echo "Testing access to GitHub Packages feed..."
+          AUTH_B64=$(printf "%s:%s" "$GITHUB_ACTOR" "$GITHUB_TOKEN" | base64)
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Basic $AUTH_B64" "$FEED_URL")
+          echo "Feed URL: $FEED_URL | HTTP status: $STATUS"
+
+          echo "Restoring with explicit sources (GitHub feed + nuget.org)"
+          dotnet restore protoc-gen-fsgrpc-ci.sln --source "$FEED_URL" --source https://api.nuget.org/v3/index.json --verbosity minimal
       - name: Build
         run: |
           dotnet build protoc-gen-fsgrpc-ci.sln \

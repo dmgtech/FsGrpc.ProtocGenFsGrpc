@@ -5,6 +5,10 @@ on:
     tags: [v*.*]
   workflow_dispatch:
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,6 +18,8 @@ jobs:
     defaults:
       run:
         working-directory: ./protoc-gen-fsgrpc
+    env:
+      ORG_NUGET_FEED: https://nuget.pkg.github.com/dmgtech/index.json
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -22,7 +28,7 @@ jobs:
         with:
           dotnet-version: |
             8.0.x
-          source-url: ${{ secrets.NUGET_SOURCE_URL }}
+          source-url: ${{ secrets.NUGET_SOURCE_URL || env.ORG_NUGET_FEED }}
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Configure private NuGet source (FsGrpc.Tools 0.8.0)
@@ -31,9 +37,13 @@ jobs:
           NUGET_SOURCE_NAME: ${{ secrets.NUGET_SOURCE_NAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ -n "$NUGET_SOURCE_URL" ] && [ -n "$NUGET_SOURCE_NAME" ]; then
+          NUGET_SOURCE_URL=${NUGET_SOURCE_URL:-$ORG_NUGET_FEED}
+          if [ -n "$NUGET_SOURCE_NAME" ]; then
             dotnet nuget remove source "$NUGET_SOURCE_NAME" || true
             dotnet nuget add source "$NUGET_SOURCE_URL" --name "$NUGET_SOURCE_NAME" --username "$GITHUB_ACTOR" --password "$GITHUB_TOKEN" --store-password-in-clear-text --valid-authentication-types basic || true
+          else
+            dotnet nuget remove source dmgtech || true
+            dotnet nuget add source "$NUGET_SOURCE_URL" --name dmgtech --username "$GITHUB_ACTOR" --password "$GITHUB_TOKEN" --store-password-in-clear-text --valid-authentication-types basic || true
           fi
       - name: Display version
         run: dotnet --version
@@ -41,11 +51,8 @@ jobs:
         env:
           NUGET_SOURCE_URL: ${{ secrets.NUGET_SOURCE_URL }}
         run: |
-          if [ -n "$NUGET_SOURCE_URL" ]; then
-            dotnet restore protoc-gen-fsgrpc.fsproj --source "$NUGET_SOURCE_URL" --source https://api.nuget.org/v3/index.json
-          else
-            dotnet restore protoc-gen-fsgrpc.fsproj
-          fi
+          FEED_URL=${NUGET_SOURCE_URL:-$ORG_NUGET_FEED}
+          dotnet restore protoc-gen-fsgrpc.fsproj --source "$FEED_URL" --source https://api.nuget.org/v3/index.json
       - name: Build linux-arm64
         run: dotnet build protoc-gen-fsgrpc.fsproj -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r linux-arm64
       - name: Build linux-x64
@@ -68,9 +75,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NUGET_SOURCE_URL: ${{ secrets.NUGET_SOURCE_URL }}
         run: |
+          FEED_URL=${NUGET_SOURCE_URL:-$ORG_NUGET_FEED}
           dotnet nuget push bin/Release/FsGrpc.ProtocGenFsGrpc.${PROTOCGENFSGRPC_VERSION#v}.nupkg \
             --api-key "$GITHUB_TOKEN" \
-            --source "$NUGET_SOURCE_URL" \
+            --source "$FEED_URL" \
             --skip-duplicate
       - name: GitHubRelease
         uses: softprops/action-gh-release@v1
