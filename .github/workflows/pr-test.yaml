@@ -25,16 +25,16 @@ jobs:
             dotnet new sln -n protoc-gen-fsgrpc-ci && \
             dotnet sln protoc-gen-fsgrpc-ci.sln add `find . -type f -name '*.fsproj'` --in-root
       - name: Install dependencies
-        run: dotnet restore
+        run: dotnet restore protoc-gen-fsgrpc-ci.sln
       - name: Build
         run: |
-          dotnet build \
+          dotnet build protoc-gen-fsgrpc-ci.sln \
             -p:TargetFramework=net${{ matrix.dotnet-version }} \
             --configuration Release \
             --no-restore
       - name: Test
         run: |
-          dotnet test \
+          dotnet test protoc-gen-fsgrpc-ci.sln \
             -p:TargetFramework=net${{ matrix.dotnet-version }} \
             --configuration Release \
             --no-restore \

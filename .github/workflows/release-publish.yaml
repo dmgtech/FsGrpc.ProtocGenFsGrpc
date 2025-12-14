@@ -24,23 +24,23 @@ jobs:
       - name: Display version
         run: dotnet --version
       - name: Install dependencies
-        run: dotnet restore
+        run: dotnet restore protoc-gen-fsgrpc.fsproj
       - name: Build linux-arm64
-        run: dotnet build -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r linux-arm64
+        run: dotnet build protoc-gen-fsgrpc.fsproj -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r linux-arm64
       - name: Build linux-x64
-        run: dotnet build -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r linux-x64
+        run: dotnet build protoc-gen-fsgrpc.fsproj -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r linux-x64
       - name: Build osx-x64
-        run: dotnet build -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r osx-x64
+        run: dotnet build protoc-gen-fsgrpc.fsproj -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r osx-x64
       - name: Build osx-arm64
-        run: dotnet build -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r osx-arm64
+        run: dotnet build protoc-gen-fsgrpc.fsproj -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r osx-arm64
       - name: Build win-x86
-        run: dotnet build -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r win-x86
+        run: dotnet build protoc-gen-fsgrpc.fsproj -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r win-x86
       - name: Build win-x64
-        run: dotnet build -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r win-x64
+        run: dotnet build protoc-gen-fsgrpc.fsproj -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r win-x64
       - name: Package
         env:
           PROTOCGENFSGRPC_VERSION: ${{github.ref_name}}
-        run: dotnet pack -p:PROTOCGENFSGRPC_VERSION=${PROTOCGENFSGRPC_VERSION#v} --no-restore --no-build --configuration Release
+        run: dotnet pack protoc-gen-fsgrpc.fsproj -p:PROTOCGENFSGRPC_VERSION=${PROTOCGENFSGRPC_VERSION#v} --no-restore --no-build --configuration Release
       - name: Nuget Push
         env:
           PROTOCGENFSGRPC_VERSION: ${{github.ref_name}}
