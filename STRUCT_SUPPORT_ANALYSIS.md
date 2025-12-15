@@ -654,12 +654,12 @@ let ``ListValue serializes to JSON array`` () =
 
 ### Immediate Next Steps for FsGrpc Repository
 
-1. ? Run `buf generate --include-imports --include-wkt -v` and capture output
-2. ? Verify `google/protobuf/struct.proto` is in the processed file list
-3. ? Check for generated `gen/google/protobuf/struct.proto.gen.fs`
-4. ? If file exists, build the project and verify compilation
-5. ? If build succeeds, uncomment and run tests in `JsonTests.fs`
-6. ?? If JSON tests fail, add custom converters to FsGrpc runtime (not protoc-gen-fsgrpc)
+- [ ] Run `buf generate --include-imports --include-wkt -v` and capture output
+- [ ] Verify `google/protobuf/struct.proto` is in the processed file list
+- [ ] Check for generated `gen/google/protobuf/struct.proto.gen.fs`
+- [ ] If file exists, build the project and verify compilation
+- [ ] If build succeeds, uncomment and run tests in `JsonTests.fs`
+- [ ] If JSON tests fail, add custom converters to FsGrpc runtime (not protoc-gen-fsgrpc)
 
 ### Long-Term Recommendations
 
