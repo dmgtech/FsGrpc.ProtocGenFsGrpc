@@ -3,6 +3,11 @@ name: dotnet package
 on:
   push:
     tags: [v*.*]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
 
 jobs:
   build:
@@ -13,6 +18,8 @@ jobs:
     defaults:
       run:
         working-directory: ./protoc-gen-fsgrpc
+    env:
+      ORG_NUGET_FEED: https://nuget.pkg.github.com/dmgtech/index.json
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -20,33 +27,59 @@ jobs:
         uses: actions/setup-dotnet@v2.0.0
         with:
           dotnet-version: |
-            6.0.x
             8.0.x
+          source-url: ${{ secrets.NUGET_SOURCE_URL || env.ORG_NUGET_FEED }}
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Configure private NuGet source (FsGrpc.Tools 0.8.0)
+        env:
+          NUGET_SOURCE_URL: ${{ secrets.NUGET_SOURCE_URL }}
+          NUGET_SOURCE_NAME: ${{ secrets.NUGET_SOURCE_NAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NUGET_SOURCE_URL=${NUGET_SOURCE_URL:-$ORG_NUGET_FEED}
+          if [ -n "$NUGET_SOURCE_NAME" ]; then
+            dotnet nuget remove source "$NUGET_SOURCE_NAME" || true
+            dotnet nuget add source "$NUGET_SOURCE_URL" --name "$NUGET_SOURCE_NAME" --username "$GITHUB_ACTOR" --password "$GITHUB_TOKEN" --store-password-in-clear-text --valid-authentication-types basic || true
+          else
+            dotnet nuget remove source dmgtech || true
+            dotnet nuget add source "$NUGET_SOURCE_URL" --name dmgtech --username "$GITHUB_ACTOR" --password "$GITHUB_TOKEN" --store-password-in-clear-text --valid-authentication-types basic || true
+          fi
       - name: Display version
         run: dotnet --version
-      - name: Install dependencies
-        run: dotnet restore
+      - name: Install dependencies (with explicit sources)
+        env:
+          NUGET_SOURCE_URL: ${{ secrets.NUGET_SOURCE_URL }}
+        run: |
+          FEED_URL=${NUGET_SOURCE_URL:-$ORG_NUGET_FEED}
+          dotnet restore protoc-gen-fsgrpc.fsproj --source "$FEED_URL" --source https://api.nuget.org/v3/index.json
       - name: Build linux-arm64
-        run: dotnet build -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r linux-arm64
+        run: dotnet build protoc-gen-fsgrpc.fsproj -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r linux-arm64
       - name: Build linux-x64
-        run: dotnet build -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r linux-x64
+        run: dotnet build protoc-gen-fsgrpc.fsproj -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r linux-x64
       - name: Build osx-x64
-        run: dotnet build -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r osx-x64
+        run: dotnet build protoc-gen-fsgrpc.fsproj -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r osx-x64
       - name: Build osx-arm64
-        run: dotnet build -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r osx-arm64
+        run: dotnet build protoc-gen-fsgrpc.fsproj -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r osx-arm64
       - name: Build win-x86
-        run: dotnet build -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r win-x86
+        run: dotnet build protoc-gen-fsgrpc.fsproj -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r win-x86
       - name: Build win-x64
-        run: dotnet build -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r win-x64
+        run: dotnet build protoc-gen-fsgrpc.fsproj -p:TargetFramework=net${{ matrix.dotnet-version }} --no-self-contained --configuration Release --no-restore -r win-x64
       - name: Package
         env:
           PROTOCGENFSGRPC_VERSION: ${{github.ref_name}}
-        run: dotnet pack -p:PROTOCGENFSGRPC_VERSION=${PROTOCGENFSGRPC_VERSION#v} --no-restore --no-build --configuration Release
-      - name: Nuget Push
+        run: dotnet pack protoc-gen-fsgrpc.fsproj -p:PROTOCGENFSGRPC_VERSION=${PROTOCGENFSGRPC_VERSION#v} --no-restore --no-build --configuration Release
+      - name: Nuget Push (GitHub Packages)
         env:
           PROTOCGENFSGRPC_VERSION: ${{github.ref_name}}
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-        run: dotnet nuget push bin/Release/FsGrpc.ProtocGenFsGrpc.${PROTOCGENFSGRPC_VERSION#v}.nupkg --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUGET_SOURCE_URL: ${{ secrets.NUGET_SOURCE_URL }}
+        run: |
+          FEED_URL=${NUGET_SOURCE_URL:-$ORG_NUGET_FEED}
+          dotnet nuget push bin/Release/FsGrpc.ProtocGenFsGrpc.${PROTOCGENFSGRPC_VERSION#v}.nupkg \
+            --api-key "$GITHUB_TOKEN" \
+            --source "$FEED_URL" \
+            --skip-duplicate
       - name: GitHubRelease
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')

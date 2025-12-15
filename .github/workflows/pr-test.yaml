@@ -4,20 +4,53 @@ on:
   pull_request:
       branches:
         - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         dotnet-version: ['8.0']
+    env:
+      ORG_NUGET_FEED: https://nuget.pkg.github.com/dmgtech/index.json
     steps:
       - uses: actions/checkout@v2
       - name: Setup .NET Core SDKs
         uses: actions/setup-dotnet@v2.0.0
         with:
           dotnet-version: |
-            6.0.x
             8.0.x
+          source-url: ${{ secrets.NUGET_SOURCE_URL || env.ORG_NUGET_FEED }}
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Configure private NuGet source (FsGrpc.Tools 0.8.0)
+        env:
+          NUGET_SOURCE_URL: ${{ secrets.NUGET_SOURCE_URL }}
+          NUGET_SOURCE_NAME: ${{ secrets.NUGET_SOURCE_NAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Fallback to org feed if secret not set (e.g., PRs from forks)
+          NUGET_SOURCE_URL=${NUGET_SOURCE_URL:-$ORG_NUGET_FEED}
+          if [ -n "$NUGET_SOURCE_NAME" ]; then
+            dotnet nuget remove source "$NUGET_SOURCE_NAME" || true
+            dotnet nuget add source "$NUGET_SOURCE_URL" \
+              --name "$NUGET_SOURCE_NAME" \
+              --username "$GITHUB_ACTOR" \
+              --password "$GITHUB_TOKEN" \
+              --store-password-in-clear-text \
+              --valid-authentication-types basic || true
+          else
+            # Use default name when not provided
+            dotnet nuget remove source dmgtech || true
+            dotnet nuget add source "$NUGET_SOURCE_URL" --name dmgtech \
+              --username "$GITHUB_ACTOR" --password "$GITHUB_TOKEN" \
+              --store-password-in-clear-text --valid-authentication-types basic || true
+          fi
       - name: Display SDK versions
         run: dotnet --list-sdks
       - name: Gather projects
@@ -25,17 +58,32 @@ jobs:
           rm -f protoc-gen-fsgrpc-ci.sln && \
             dotnet new sln -n protoc-gen-fsgrpc-ci && \
             dotnet sln protoc-gen-fsgrpc-ci.sln add `find . -type f -name '*.fsproj'` --in-root
-      - name: Install dependencies
-        run: dotnet restore
+      - name: Install dependencies (with diagnostics)
+        env:
+          NUGET_SOURCE_URL: ${{ secrets.NUGET_SOURCE_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "NuGet sources configured:" && dotnet nuget list source --format detailed || true
+
+          # Determine feed URL
+          FEED_URL=${NUGET_SOURCE_URL:-$ORG_NUGET_FEED}
+
+          echo "Testing access to GitHub Packages feed..."
+          AUTH_B64=$(printf "%s:%s" "$GITHUB_ACTOR" "$GITHUB_TOKEN" | base64)
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Basic $AUTH_B64" "$FEED_URL")
+          echo "Feed URL: $FEED_URL | HTTP status: $STATUS"
+
+          echo "Restoring with explicit sources (GitHub feed + nuget.org)"
+          dotnet restore protoc-gen-fsgrpc-ci.sln --source "$FEED_URL" --source https://api.nuget.org/v3/index.json --verbosity minimal
       - name: Build
         run: |
-          dotnet build \
+          dotnet build protoc-gen-fsgrpc-ci.sln \
             -p:TargetFramework=net${{ matrix.dotnet-version }} \
             --configuration Release \
             --no-restore
       - name: Test
         run: |
-          dotnet test \
+          dotnet test protoc-gen-fsgrpc-ci.sln \
             -p:TargetFramework=net${{ matrix.dotnet-version }} \
             --configuration Release \
             --no-restore \
