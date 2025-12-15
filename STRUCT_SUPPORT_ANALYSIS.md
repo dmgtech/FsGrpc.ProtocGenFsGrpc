@@ -681,7 +681,7 @@ let ``ListValue serializes to JSON array`` () =
 
 ## Document Metadata
 
-- **Created**: 2024-12-XX
+- **Created**: 2024-06-10
 - **Analysis Target**: protoc-gen-fsgrpc code generator
 - **Target Framework**: .NET 8.0
 - **Conclusion**: No code changes required in protoc-gen-fsgrpc
