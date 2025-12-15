@@ -277,13 +277,13 @@ These already exist in the FsGrpc runtime, so no changes should be needed there 
 
 ## Success Criteria
 
-1. ? `struct.proto` is processed by the code generator
-2. ? Generated file `struct.proto.gen.fs` appears in correct location
-3. ? FsGrpc.Tests project compiles without errors
-4. ? `Google.Protobuf.Struct.empty` is accessible from F# code
-5. ? Struct types can be serialized to/from protocol buffer wire format
-6. ? Struct types can be serialized to/from JSON
-7. ? Test cases in JsonTests.fs pass when uncommented
+- [ ] `struct.proto` is processed by the code generator
+- [ ] Generated file `struct.proto.gen.fs` appears in correct location
+- [ ] FsGrpc.Tests project compiles without errors
+- [ ] `Google.Protobuf.Struct.empty` is accessible from F# code
+- [ ] Struct types can be serialized to/from protocol buffer wire format
+- [ ] Struct types can be serialized to/from JSON
+- [ ] Test cases in JsonTests.fs pass when uncommented
 
 ## Questions to Answer During Implementation
 
