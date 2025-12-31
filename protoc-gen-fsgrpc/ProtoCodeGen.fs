@@ -31,6 +31,32 @@ let camelCase str =
     | "" -> ""
     | s -> s.Substring(0,1).ToLower() + s.Substring(1)
 
+// Centralized map of protobuf well-known types -> CLR type under Google.Protobuf.WellKnownTypes
+let private wellKnownTypesFsName : Map<string, string> =
+    [
+        ".google.protobuf.Any", "Google.Protobuf.WellKnownTypes.Any";
+        ".google.protobuf.Timestamp", "Google.Protobuf.WellKnownTypes.Timestamp";
+        ".google.protobuf.Duration", "Google.Protobuf.WellKnownTypes.Duration";
+        ".google.protobuf.Struct", "Google.Protobuf.WellKnownTypes.Struct";
+        ".google.protobuf.Value", "Google.Protobuf.WellKnownTypes.Value";
+        ".google.protobuf.ListValue", "Google.Protobuf.WellKnownTypes.ListValue";
+        ".google.protobuf.NullValue", "Google.Protobuf.WellKnownTypes.NullValue";
+        ".google.protobuf.FieldMask", "Google.Protobuf.WellKnownTypes.FieldMask";
+        ".google.protobuf.DoubleValue", "Google.Protobuf.WellKnownTypes.DoubleValue";
+        ".google.protobuf.FloatValue", "Google.Protobuf.WellKnownTypes.FloatValue";
+        ".google.protobuf.Int64Value", "Google.Protobuf.WellKnownTypes.Int64Value";
+        ".google.protobuf.UInt64Value", "Google.Protobuf.WellKnownTypes.UInt64Value";
+        ".google.protobuf.Int32Value", "Google.Protobuf.WellKnownTypes.Int32Value";
+        ".google.protobuf.UInt32Value", "Google.Protobuf.WellKnownTypes.UInt32Value";
+        ".google.protobuf.BoolValue", "Google.Protobuf.WellKnownTypes.BoolValue";
+        ".google.protobuf.StringValue", "Google.Protobuf.WellKnownTypes.StringValue";
+        ".google.protobuf.BytesValue", "Google.Protobuf.WellKnownTypes.BytesValue";
+    ] |> Map.ofList
+
+let private normalizeProtoFqn (name: string) =
+    if System.String.IsNullOrEmpty(name) then name
+    elif name.StartsWith(".") then name else "." + name
+
 type NsNode =
 | Message of (NsNode option * MessageDef)
 | Enum of (NsNode option * EnumDef)
@@ -172,7 +198,7 @@ with
         | ProtoFieldType.Sint64 -> ValueType.SInt64
         | ProtoFieldType.Enum -> ValueType.Enum (typeMap typeName)
         | ProtoFieldType.Message ->
-            match typeName with
+            match normalizeProtoFqn typeName with
             | ".google.protobuf.DoubleValue" -> ValueType.Wrap ValueType.Double
             | ".google.protobuf.FloatValue" -> ValueType.Wrap ValueType.Float
             | ".google.protobuf.Int64Value" -> ValueType.Wrap ValueType.Int64
@@ -942,7 +968,7 @@ let rec private toOpticsExtensionMethods (typeMap: TypeMap) (opticsNs: string) (
     let members = recordMembers typeMap protoMessageDef.OneofDecls protoMessageDef.Fields
 
     let oneofUnions = members |> Seq.choose (fun m -> match m with | MemberType.Oneof oneof -> Some oneof | _ -> None)
-    let nestedTypes = protoMessageDef.NestedTypes |> Seq.filter (isMapType >> not) |> Seq.map (toOpticsExtensionMethods typeMap opticsNs $"{protoNs}.{protoName}" $"{relativeNs}.{protoName}")
+    let nestedTypes = protoMessageDef.NestedTypes |> Seq.filter (isMapType >> not) |> Seq.map (toOpticsExtensionMethods typeMap opticsNs protoNs "")  
 
     let opticsModuleName = $"%s{opticsNs}.%s{relativeNs}.%s{fsName}".Replace("..", ".")
     Frag [
@@ -1136,7 +1162,7 @@ let createTypeMap (files: FileDef seq) : TypeMap =
     let leafToMapping nsnode =
         match nsnode with
         | Message _ | Enum _ ->
-            let protoName = NsNode.protoNameOf nsnode
+            let protoName = NsNode.protoNameOf nsnode |> normalizeProtoFqn
             let fsName = NsNode.fsNameOf nsnode
             let typeInfo = {
                 FsName = fsName
@@ -1147,11 +1173,15 @@ let createTypeMap (files: FileDef seq) : TypeMap =
             None
     let nsNodes = Files files |> nsDescendants |> Seq.choose leafToMapping
     let map = nsNodes |> Map.ofSeq
-    let find protoName =
-        match map.TryFind(protoName) with
-        | Some typeInfo -> typeInfo
+    let find protoNameUnnormalized =
+        let protoName = normalizeProtoFqn protoNameUnnormalized
+        // Prefer WellKnownTypes mapping for google.protobuf types
+        match wellKnownTypesFsName.TryFind(protoName) with
+        | Some fsName -> { FsName = fsName; Def = Files files }
         | None ->
-            failwith $"ERROR: Could not find type info for {protoName}"
+            match map.TryFind(protoName) with
+            | Some typeInfo -> typeInfo
+            | None -> failwith $"ERROR: Could not find type info for {protoName}"
     find
 
 let private toFsNamespaceDecl (package: string) =
@@ -1236,8 +1266,8 @@ let toFsMethodDef (typeMap: TypeMap) (protoNs: string) (service: ServiceDescript
         Line $"Grpc.Core.Method<{inputType.FsName},{outputType.FsName}>("
         Block [
             Line $"Grpc.Core.MethodType.{methodTypeIndicator},"
-            Line $"\"{protoNs}.{service.Name}\","
-            Line $"\"{serviceMethod.Name}\","
+            Line $"\"{protoNs}.{service.Name}\"," 
+            Line $"\"{serviceMethod.Name}\"," 
             Line $"{toMarshallerName serviceMethod.InputType},"
             Line $"{toMarshallerName serviceMethod.OutputType}"
         ]

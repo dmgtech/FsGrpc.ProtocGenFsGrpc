@@ -1,0 +1,8 @@
+syntax = "proto3";
+package ex.amplewkt;
+import "google/protobuf/struct.proto";
+
+message UseWkt {
+  google.protobuf.Struct s = 1;
+  google.protobuf.Value v = 2;
+}

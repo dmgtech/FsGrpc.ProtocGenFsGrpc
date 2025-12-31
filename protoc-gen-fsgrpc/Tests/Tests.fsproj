@@ -1,14 +1,19 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-
     <IsPackable>false</IsPackable>
     <GenerateProgramFile>false</GenerateProgramFile>
+    <DisableProtobufDesignTimeBuild>false</DisableProtobufDesignTimeBuild>
+    <ProtocPluginFullPath>$(MSBuildThisFileDirectory)..\bin\$(Configuration)\net8.0\protoc-gen-fsgrpc.exe</ProtocPluginFullPath>
   </PropertyGroup>
 
+  <!-- Compile all protos using the locally built plugin -->
   <ItemGroup>
-    <Protobuf Include="inputs/proto/**/*.proto" ProtoRoot="inputs/proto" />
+	<Protobuf Include="inputs/proto/**/*.proto" Exclude="inputs/proto/wkt.proto" ProtoRoot="inputs/proto">
+		  <ProtocPluginExe>$(ProtocPluginFullPath)</ProtocPluginExe>
+		  <CompileOutputs>True</CompileOutputs>
+	</Protobuf>
   </ItemGroup>
 
   <ItemGroup>
@@ -27,6 +32,7 @@
     </None>
     <Compile Include="Tests.fs" />
     <Compile Include="ServiceTests.fs" />
+    <Compile Include="WellKnownTypesTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
@@ -42,14 +48,17 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="FSharp.Control.AsyncSeq" Version="3.2.1" />
-    <!-- Use FsGrpc.Tools 0.8.0 to match generator and its Google.Protobuf dependency -->
     <PackageReference Include="FsGrpc.Tools" Version="0.8.0" />
-    <!-- Pin Google.Protobuf to 3.33.1 to avoid assembly conflicts -->
     <PackageReference Include="Google.Protobuf" Version="3.33.1" />
+    <PackageReference Include="FSharp.Compiler.Service" Version="43.8.403" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="../protoc-gen-fsgrpc.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="8.0.403" />
   </ItemGroup>
 
 </Project>
