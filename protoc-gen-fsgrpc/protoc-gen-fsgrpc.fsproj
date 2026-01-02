@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -24,12 +24,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Protobuf Include="protoc-proto/**/*.proto" ProtoRoot="protoc-proto" />
+    <!-- Generate proto files but don't compile them - we use bootstrap files instead -->
+    <Protobuf Include="protoc-proto/**/*.proto" ProtoRoot="protoc-proto" CompileOutputs="False" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="../LICENSE" Pack="true" PackagePath="" />
     <None Include="../README.md" Pack="true" PackagePath="" />
+    <!-- Bootstrap files needed for compilation -->
+    <Compile Include="bootstrap/google/protobuf/descriptor.proto.gen.fs" />
+    <Compile Include="bootstrap/google/protobuf/compiler/plugin.proto.gen.fs" />
     <Compile Include="Model.fs" />
     <Compile Include="DependencySort.fs" />
     <Compile Include="ChangeCase.fs" />
@@ -39,7 +43,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FsGrpc.Tools" Version="0.8.0" PrivateAssets="all" />
     <PackageReference Include="Focal.Core" Version="0.10.0" />
     <PackageReference Update="FSharp.Core" Version="8.0.403" />
 
@@ -49,6 +52,11 @@
     <None Include="$(OutputPath)\osx-arm64\*" Pack="true" PackagePath="tools\macosx_arm64" Visible="false" />
     <None Include="$(OutputPath)\win-x64\*" Pack="true" PackagePath="tools\windows_x64" Visible="false" />
     <None Include="$(OutputPath)\win-x86\*" Pack="true" PackagePath="tools\windows_x86" Visible="false" />
+    <PackageReference Include="FsGrpc" Version="1.1.0" />
+    <PackageReference Include="FsGrpc.Tools" Version="0.8.4" />
+    <PackageReference Include="Google.Protobuf" Version="3.33.1" />
   </ItemGroup>
 
 </Project>
+
+

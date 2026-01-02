@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package nested.test;
+
+// Test nested types in various contexts
+message OuterMessage {
+  message NestedMessage {
+    string value = 1;
+    
+    message DoublyNested {
+      int32 number = 1;
+    }
+  }
+  
+  enum NestedEnum {
+    UNKNOWN = 0;
+    FIRST = 1;
+    SECOND = 2;
+  }
+  
+  // Field using nested message
+  NestedMessage nested_field = 1;
+  
+  // Field using doubly nested message
+  NestedMessage.DoublyNested doubly_nested_field = 2;
+  
+  // Field using nested enum
+  NestedEnum enum_field = 3;
+  
+  // Repeated nested
+  repeated NestedMessage repeated_nested = 4;
+  
+  // Map with nested value
+  map<string, NestedMessage> map_nested = 5;
+  
+  // Optional nested
+  optional NestedMessage optional_nested = 6;
+}
+
+// Another outer message referencing the first's nested types
+message AnotherMessage {
+  OuterMessage.NestedMessage cross_reference = 1;
+  OuterMessage.NestedEnum cross_enum = 2;
+}

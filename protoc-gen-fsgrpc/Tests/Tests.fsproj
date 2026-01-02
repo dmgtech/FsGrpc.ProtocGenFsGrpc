@@ -1,11 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <GenerateProgramFile>false</GenerateProgramFile>
-    <DisableProtobufDesignTimeBuild>false</DisableProtobufDesignTimeBuild>
-    <ProtocPluginFullPath>$(MSBuildThisFileDirectory)..\bin\$(Configuration)\net8.0\protoc-gen-fsgrpc.exe</ProtocPluginFullPath>
+    <ProtocPluginFullPath Condition="'$(BuildingInsideVisualStudio)' != 'true'">$(MSBuildThisFileDirectory)..\bin\$(Configuration)\net8.0\protoc-gen-fsgrpc.exe</ProtocPluginFullPath>
   </PropertyGroup>
 
   <!-- Compile all protos using the locally built plugin -->
@@ -13,6 +12,7 @@
 	<Protobuf Include="inputs/proto/**/*.proto" Exclude="inputs/proto/wkt.proto" ProtoRoot="inputs/proto">
 		  <ProtocPluginExe>$(ProtocPluginFullPath)</ProtocPluginExe>
 		  <CompileOutputs>True</CompileOutputs>
+		  <Generator>MSBuild:Compile</Generator>
 	</Protobuf>
   </ItemGroup>
 
@@ -20,11 +20,11 @@
     <None Include="inputs/**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <!-- Align test tooling with generator dependency (FsGrpc.Tools 0.8.0) -->
-    <None Include="$(NugetPackageRoot)/fsgrpc.tools/0.8.0/build/native/**">
+    <!-- Align test tooling with generator dependency (FsGrpc.Tools 0.8.4) -->
+    <None Include="$(NugetPackageRoot)/fsgrpc.tools/0.8.4/build/native/**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="$(NugetPackageRoot)/fsgrpc.tools/0.8.0/tools/**">
+    <None Include="$(NugetPackageRoot)/fsgrpc.tools/0.8.4/tools/**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="reference/**">
@@ -33,10 +33,18 @@
     <Compile Include="Tests.fs" />
     <Compile Include="ServiceTests.fs" />
     <Compile Include="WellKnownTypesTests.fs" />
+    <Compile Include="NestedTypesTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FsGrpc" Version="1.1.0" />
+    <PackageReference Include="FsGrpc.Tools" Version="0.8.4" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.70.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
     <PackageReference Include="xunit" Version="2.7.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.7">
@@ -48,7 +56,6 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="FSharp.Control.AsyncSeq" Version="3.2.1" />
-    <PackageReference Include="FsGrpc.Tools" Version="0.8.0" />
     <PackageReference Include="Google.Protobuf" Version="3.33.1" />
     <PackageReference Include="FSharp.Compiler.Service" Version="43.8.403" />
   </ItemGroup>
