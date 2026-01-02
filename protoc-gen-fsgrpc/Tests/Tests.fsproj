@@ -4,7 +4,6 @@
     <TargetFramework>net8.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <GenerateProgramFile>false</GenerateProgramFile>
-    <DisableProtobufDesignTimeBuild>true</DisableProtobufDesignTimeBuild>
     <ProtocPluginFullPath Condition="'$(BuildingInsideVisualStudio)' != 'true'">$(MSBuildThisFileDirectory)..\bin\$(Configuration)\net8.0\protoc-gen-fsgrpc.exe</ProtocPluginFullPath>
   </PropertyGroup>
 
@@ -13,6 +12,7 @@
 	<Protobuf Include="inputs/proto/**/*.proto" Exclude="inputs/proto/wkt.proto" ProtoRoot="inputs/proto">
 		  <ProtocPluginExe>$(ProtocPluginFullPath)</ProtocPluginExe>
 		  <CompileOutputs>True</CompileOutputs>
+		  <Generator>MSBuild:Compile</Generator>
 	</Protobuf>
   </ItemGroup>
 
@@ -44,6 +44,7 @@
   <ItemGroup>
     <PackageReference Include="FsGrpc" Version="1.1.0" />
     <PackageReference Include="FsGrpc.Tools" Version="0.8.4" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.70.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
     <PackageReference Include="xunit" Version="2.7.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.7">

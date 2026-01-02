@@ -24,12 +24,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Protobuf Include="protoc-proto/**/*.proto" ProtoRoot="protoc-proto" CompileOutputs="True" />
+    <!-- Generate proto files but don't compile them - we use bootstrap files instead -->
+    <Protobuf Include="protoc-proto/**/*.proto" ProtoRoot="protoc-proto" CompileOutputs="False" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="../LICENSE" Pack="true" PackagePath="" />
     <None Include="../README.md" Pack="true" PackagePath="" />
+    <!-- Bootstrap files needed for compilation -->
+    <Compile Include="bootstrap/google/protobuf/descriptor.proto.gen.fs" />
+    <Compile Include="bootstrap/google/protobuf/compiler/plugin.proto.gen.fs" />
     <Compile Include="Model.fs" />
     <Compile Include="DependencySort.fs" />
     <Compile Include="ChangeCase.fs" />

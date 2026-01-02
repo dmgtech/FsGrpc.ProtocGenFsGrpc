@@ -21,7 +21,7 @@ PROTOC=protoc
 #PROTOROOT=${DIR}/../fsgrpc-test/CsharpRefImpl/proto
 PROTOROOT=${DIR}/protoc-proto
 
-PATH=${DIR}/bin/Debug/net6.0:${PATH}
+PATH=${DIR}/bin/Debug/net8.0:${PATH}
 
 $PROTOC -I${PROTOROOT} \
     --fsgrpc_out=./bootstrap \
